@@ -1,0 +1,73 @@
+# Node modules
+node_modules
+npm-debug.log
+npm-error.log
+yarn-error.log
+yarn-debug.log
+
+# Build artifacts
+.next
+dist
+build
+out
+
+# Development
+.env
+.env.local
+.env.*.local
+.vscode
+.idea
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Documentation
+README.md
+CONTRIBUTING.md
+LICENSE
+
+# Tests
+__tests__
+.test
+.spec
+jest.config.js
+coverage
+
+# CI/CD
+.github
+.gitlab-ci.yml
+.travis.yml
+azure-pipelines.yml
+Jenkinsfile
+
+# Logs
+logs
+*.log
+.logs
+
+# Temporary files
+tmp
+temp
+*.tmp
+.cache
+
+# Docker
+Dockerfile
+docker-compose*.yml
+.dockerignore
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode
+.idea
+*.sublime-project
+*.sublime-workspace

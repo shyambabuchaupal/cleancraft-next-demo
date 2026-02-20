@@ -1,0 +1,45 @@
+# Supabase Local Development Configuration
+# This file contains configuration for Supabase CLI and local development
+
+[project]
+project_id = "your_project_id"
+organization_id = "your_org_id"
+
+[api]
+# Port configuration for local development
+port = 54321
+schemas = ["public", "storage", "graphql_public"]
+max_rows = 1000
+
+[db]
+# Database configuration
+port = 54322
+major_version = 15
+
+[auth]
+# Authentication configuration
+site_url = "http://localhost:3000"
+additional_redirect_urls = ["http://localhost:3000/auth/callback"]
+jwt_expiry = 3600
+enable_signup = true
+email_autoconfirm = false
+
+[storage]
+file_size_limit = 52428800
+
+[functions]
+# Edge Functions configuration
+import_map = "./functions/import_map.json"
+verify_jwt = true
+
+[analytics]
+enabled = true
+
+[realtime]
+enabled = true
+max_bytes_per_second = 1000000
+
+[extensions]
+vector = true
+uuid_ossp = true
+http = true

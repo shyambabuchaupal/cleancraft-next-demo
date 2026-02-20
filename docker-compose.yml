@@ -1,0 +1,151 @@
+version: '3.9'
+
+services:
+  # ==================== Next.js Application ====================
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: cleancraft-app
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_SUPABASE_URL=${NEXT_PUBLIC_SUPABASE_URL}
+      - NEXT_PUBLIC_SUPABASE_ANON_KEY=${NEXT_PUBLIC_SUPABASE_ANON_KEY}
+      - NEXT_PUBLIC_STRAPI_URL=${NEXT_PUBLIC_STRAPI_URL}
+      - NEXT_PUBLIC_STRAPI_API_TOKEN=${NEXT_PUBLIC_STRAPI_API_TOKEN}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    networks:
+      - cleancraft-network
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - app-logs:/app/.logs
+    security_opt:
+      - no-new-privileges:true
+
+  # ==================== PostgreSQL Database ====================
+  postgres:
+    image: postgres:15-alpine
+    container_name: cleancraft-postgres
+    environment:
+      - POSTGRES_USER=${DB_USER:-postgres}
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-postgres}
+      - POSTGRES_DB=${DB_NAME:-cleancraft}
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - cleancraft-network
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./supabase/migrations:/docker-entrypoint-initdb.d
+    security_opt:
+      - no-new-privileges:true
+
+  # ==================== Redis Cache ====================
+  redis:
+    image: redis:7-alpine
+    container_name: cleancraft-redis
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-redis_password}
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - cleancraft-network
+    volumes:
+      - redis-data:/data
+    security_opt:
+      - no-new-privileges:true
+
+  # ==================== Nginx Reverse Proxy ====================
+  nginx:
+    image: nginx:alpine
+    container_name: cleancraft-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    restart: unless-stopped
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+      - nginx-logs:/var/log/nginx
+    networks:
+      - cleancraft-network
+    depends_on:
+      - app
+    security_opt:
+      - no-new-privileges:true
+
+  # ==================== Monitoring - Prometheus ====================
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: cleancraft-prometheus
+    ports:
+      - "9090:9090"
+    restart: unless-stopped
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    networks:
+      - cleancraft-network
+    security_opt:
+      - no-new-privileges:true
+
+  # ==================== Monitoring - Grafana ====================
+  grafana:
+    image: grafana/grafana:latest
+    container_name: cleancraft-grafana
+    ports:
+      - "3001:3000"
+    restart: unless-stopped
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin}
+      - GF_INSTALL_PLUGINS=grafana-piechart-panel
+    volumes:
+      - grafana-data:/var/lib/grafana
+    networks:
+      - cleancraft-network
+    depends_on:
+      - prometheus
+    security_opt:
+      - no-new-privileges:true
+
+networks:
+  cleancraft-network:
+    driver: bridge
+
+volumes:
+  postgres-data:
+    driver: local
+  redis-data:
+    driver: local
+  app-logs:
+    driver: local
+  prometheus-data:
+    driver: local
+  grafana-data:
+    driver: local
+  nginx-logs:
+    driver: local
