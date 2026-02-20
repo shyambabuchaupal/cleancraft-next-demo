@@ -36,15 +36,54 @@ CleanCraft is a contemporary web application demonstrating industry best practic
 
 ```
 cleancraft-next-demo/
-├── app/                    # Next.js app directory
-├── components/             # Reusable React components
-├── lib/                    # Utility functions and helpers
-├── public/                 # Static assets (images, icons)
-├── styles/                 # Global styles and theme
-├── Dockerfile              # Docker configuration
-├── package.json            # Project dependencies
-├── tsconfig.json           # TypeScript configuration
-└── README.md              # This file
+├── src/
+│   ├── app/                      # Next.js app directory (layouts, pages)
+│   │   ├── layout.tsx            # Root layout with metadata
+│   │   ├── page.tsx              # Home page component
+│   │   └── api/                  # API routes
+│   │
+│   ├── components/               # Reusable React components
+│   │   ├── Button.tsx            # Base button component
+│   │   ├── sections/             # Section components
+│   │   │   ├── Hero.tsx
+│   │   │   ├── Features.tsx
+│   │   │   └── Testimonials.tsx
+│   │   └── StrapiContentRenderer.tsx  # Dynamic content from Strapi CMS
+│   │
+│   ├── config/                   # Application configuration
+│   │   └── app.config.ts         # Centralized app config
+│   │
+│   ├── contexts/                 # React Context providers
+│   │   └── AuthContext.tsx       # Authentication context
+│   │
+│   ├── hooks/                    # Custom React hooks
+│   │   └── useWindowSize.ts      # Window resize hook
+│   │
+│   ├── integrations/             # Third-party integrations
+│   │   └── supabase/
+│   │       └── client.ts         # Supabase client config
+│   │
+│   ├── lib/                      # Utility functions and libraries
+│   │   └── axios.ts              # HTTP client setup
+│   │
+│   ├── services/                 # Business logic and API services
+│   │   └── api.service.ts        # API endpoints wrapper
+│   │
+│   ├── styles/                   # Global styles and CSS
+│   │   └── globals.css           # Global stylesheet
+│   │
+│   ├── types/                    # TypeScript type definitions
+│   │   └── index.ts              # Global types
+│   │
+│   └── utils/                    # Utility functions
+│       └── formatters.ts         # Data formatting helpers
+│
+├── public/                       # Static assets (images, icons, fonts)
+├── Dockerfile                    # Docker configuration
+├── package.json                  # Project dependencies
+├── tsconfig.json                 # TypeScript configuration
+├── next.config.js                # Next.js configuration
+└── README.md                     # This file
 ```
 
 ## Getting Started
@@ -100,7 +139,30 @@ docker build -t cleancraft .
 docker run -p 3000:3000 cleancraft
 ```
 
+## Folder Structure Explanation
+
+### `/src` Directory
+The `src` directory contains all application source code, following industry best practices:
+
+- **`app/`** - Next.js app directory with routes, layouts, and pages
+- **`components/`** - Reusable UI components (buttons, cards, sections)
+- **`config/`** - Centralized configuration (environment, features, URLs)
+- **`contexts/`** - React Context for state management (auth, theme, etc.)
+- **`hooks/`** - Custom React hooks (useWindowSize, useAuth, etc.)
+- **`integrations/`** - Third-party service integrations (Supabase, Stripe, etc.)
+- **`lib/`** - Core utilities and library setup (HTTP client, helpers)
+- **`services/`** - Business logic and API service layer
+- **`styles/`** - Global styles, CSS variables, and theme
+- **`types/`** - TypeScript interfaces and type definitions
+- **`utils/`** - Pure utility functions (formatters, validators)
+
 ## Architecture & Best Practices
+
+### Directory Organization
+- **Separation of Concerns** - Each folder has a specific responsibility
+- **Scalability** - Easy to add new features without affecting existing code
+- **Maintainability** - Clear structure makes code easy to understand and modify
+- **Reusability** - Components and utilities are modular and reusable
 
 ### Component Design
 - **Functional Components** with React Hooks
